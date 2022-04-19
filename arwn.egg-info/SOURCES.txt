@@ -1,5 +1,0 @@
-setup.py
-arwn.egg-info/PKG-INFO
-arwn.egg-info/SOURCES.txt
-arwn.egg-info/dependency_links.txt
-arwn.egg-info/top_level.txt
