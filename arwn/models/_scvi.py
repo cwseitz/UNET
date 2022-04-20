@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from arwn._compat import Literal
 from ._vae import VAE
-from .base import BaseModelClass, VAEMixin
+from .base import BaseModel, VAEMixin
 
 logger = logging.getLogger(__name__)
 

@@ -11,15 +11,15 @@ static PyMethodDef GRNMethods[] = {
     {NULL, NULL, 0, NULL},
 };
 
-static struct PyModuleDef sentinel_core = {
+static struct PyModuleDef backend = {
     PyModuleDef_HEAD_INIT,
-    "sentinel_core",
-    "Python interface for core sentinel implementation in C",
+    "backend",
+    "Python interface for core implementations in C",
     -1,
     GRNMethods
 };
 
-PyMODINIT_FUNC PyInit_sentinel_core(void) {
+PyMODINIT_FUNC PyInit_backend(void) {
     import_array();
-    return PyModule_Create(&sentinel_core);
+    return PyModule_Create(&backend);
 }

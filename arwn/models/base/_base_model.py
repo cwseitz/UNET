@@ -3,9 +3,14 @@ import logging
 import os
 import warnings
 from uuid import uuid4
+from typing import Dict, Optional, Sequence, Type, Union
 
 import numpy as np
 import torch
+
+_UNTRAINED_WARNING_MESSAGE = "Trying to query inferred values from an untrained model. Please train the model first."
+
+_SETUP_INPUTS_EXCLUDED_PARAMS = {"adata", "kwargs"}
 
 class BaseModel:
     """Abstract class for models."""

@@ -11,8 +11,8 @@ from torch.distributions import kl_divergence as kl
 
 from arwn._compat import Literal
 from arwn.distributions import NegativeBinomial, ZeroInflatedNegativeBinomial
-from arwn.module.base import BaseModuleClass, LossRecorder, auto_move_data
-from arwn.nn import Decoderarwn, Encoder, LinearDecoderarwn, one_hot
+from ._module import BaseModuleClass, LossRecorder, auto_move_data
+from ._components import DecoderSCVI, Encoder, LinearDecoderSCVI, one_hot
 
 torch.backends.cudnn.benchmark = True
 

@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -13,10 +14,11 @@ def build_linear_system(adj):
     mat *= gam
     return mat
 
-def build_graph(dir, filename, ext, plot=True):
+def build_graph(path, plot=True):
 
     #strip newlines in a temp file to prevent extra nodes from being added
-    file = open(dir+filename+ext, "r")
+
+    file = open(path, "r")
     new = ""
     for line in file:
         line = line.strip()
@@ -54,3 +56,11 @@ def build_graph(dir, filename, ext, plot=True):
         plt.show()
 
     return nx_graph
+
+class YeastExample:
+    def __init__(self):
+
+        path = os.getcwd() + '/networks/yeast.dot'
+        self.graph = build_graph(path, plot=False)
+        self.adj = nx.adjacency_matrix(graph).todense()
+        

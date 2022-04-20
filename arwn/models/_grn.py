@@ -1,5 +1,4 @@
 import numpy as np
-import sentinel_core
 
 ################################################################################
 ## Author: Clayton Seitz
@@ -54,7 +53,7 @@ class LinearGRN(GRN_Base):
         for i in range(self.trials):
             this_W = list(W[i].flatten())
             params = [self.N,self.Nrecord,self.T,self.Nt,x0,this_W,mat]
-            ctup = sentinel_core.lin_grn(params)
+            ctup = backend.lin_grn(params)
             self.add_trial(ctup)
 
         self.X = np.array(self.X)
@@ -95,7 +94,7 @@ class HillGRN(GRN_Base):
             this_w1 = list(w1[i].flatten())
             this_w2 = list(w2[i].flatten())
             params = [self.N,self.Nrecord,self.T,self.Nt,x0,this_w1,this_w2,h,K,b,lam,q,n]
-            ctup = sentinel_core.lmc_grn(params)
+            ctup = backend.lmc_grn(params)
             self.add_trial(ctup)
 
         self.X = np.array(self.X)

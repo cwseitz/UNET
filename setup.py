@@ -8,7 +8,7 @@ def main():
           description="Automated gene Regulatory netWork aNalysis",
           author="Clayton Seitz",
           author_email="cwseitz@iu.edu",
-          ext_modules=[Extension("backend", ["arwn/backend/backend.c"],
+          ext_modules=[Extension("arwn.backend", ["arwn/backend/backend.c"],
                        include_dirs = [numpy.get_include()],
                        library_dirs = ['/usr/lib/x86_64-linux-gnu'])])
 
