@@ -1,66 +1,73 @@
-import os
-import matplotlib.pyplot as plt
-import networkx as nx
+from ._digraph import *
+from arwn import backend
+from matplotlib.colors import to_hex
 import numpy as np
-import pydot
+import networkx as nx
 
-def build_linear_system(adj):
-    n = adj.shape[0]
-    mat = np.zeros((2*n,2*n))
-    gam = np.ones((2*n,2*n))
-    np.fill_diagonal(mat, -0.1*np.ones((2*n,)))
-    mat[n:,:n] = 0.1*np.diag(np.ones((n,)))
-    mat[:n,n:] = 0.1*adj
-    mat *= gam
-    return mat
+class DynamicsBase:
+    def __init__(self,N,T,Nt,trials,Nrecord):
+        self.N = N
+        self.T = T
+        self.Nt = Nt
+        self.dt = self.N/self.Nt
+        self.trials = trials
+        self.Nrecord = Nrecord
+        self.shape = (self.N,self.trials,self.Nt)
 
-def build_graph(path, plot=True):
+class LinearDynamicsMixin(DynamicsBase):
+    def __init__(self,N,T,Nt,trials,Nrecord):
+        super(LinearDynamicsMixin, self).__init__(N,T,Nt,trials,Nrecord)
+        self.X = self.Y = []
+        self._initialize()
 
-    #strip newlines in a temp file to prevent extra nodes from being added
+    def run_dynamics(self):
+        mat = np.squeeze(np.asarray(self.mat.flatten())).tolist()
+        for i in range(self.trials):
+            x0 = list(self.x0[i])
+            y0 = list(self.y0[i])
+            this_noise_x = list(self.noise_x[i].flatten())
+            this_noise_y = list(self.noise_y[i].flatten())
+            params = [self.N,self.Nrecord,self.T,self.Nt,x0,y0,mat,this_noise_x,this_noise_y]
+            X,Y = backend.Linear(params)
+            self.add_trial(X,Y)
 
-    file = open(path, "r")
-    new = ""
-    for line in file:
-        line = line.strip()
-        new += line
-
-    file.close()
-    fout = open(dir+filename+'-tmp'+ext, "w")
-    fout.write(new)
-    fout.close()
-
-    #construct the graph by hand using pydot
-    graphs = pydot.graph_from_dot_file(dir+filename+'-tmp'+ext)
-    graph = graphs[0]
-
-    #iterate over nodes
-    nx_graph = nx.DiGraph()
-    nodes = graph.get_nodes()
-    edges = graph.get_edges()
-
-    for node in nodes:
-        nx_graph.add_node(node.get_name().replace('"', ''))
-
-    for edge in edges:
-        src = edge.get_source().replace('"', '')
-        dst = edge.get_destination().replace('"', '')
-        val = edge.obj_dict['attributes']['value'].replace('"', '')
-        if val == '+': color = 'blue'; weight = 1
-        if val == '-': color = 'red'; weight = -1
-        nx_graph.add_edge(src,dst,color=color,value=val, weight=weight)
-
-    if plot:
-        colors = [nx_graph[u][v]['color'] for u,v in nx_graph.edges]
-        pos = nx.circular_layout(nx_graph)
-        nx.draw(nx_graph,pos=pos,node_color='cornflowerblue',edge_color=colors,with_labels=True)
-        plt.show()
-
-    return nx_graph
-
-class YeastExample:
-    def __init__(self):
-
-        path = os.getcwd() + '/networks/yeast.dot'
-        self.graph = build_graph(path, plot=False)
-        self.adj = nx.adjacency_matrix(graph).todense()
+        self.X = np.array(self.X)
+        self.Y = np.array(self.Y)
+        return self.X, self.Y
         
+    def _initialize(self):
+            self.x0 = np.random.randint(10,100,size=(self.trials,self.N))
+            self.y0 = np.random.randint(10,100,size=(self.trials,self.N))
+            self.noise_x = np.sqrt(self.dt)*np.random.normal(0,1,size=(self.trials,self.N,self.Nt))
+            self.noise_y = np.sqrt(self.dt)*np.random.normal(0,1,size=(self.trials,self.N,self.Nt))
+            self.mat = np.random.normal(0,1,size=(self.N,self.N))*self.adj
+
+    def add_trial(self, X, Y):
+        self.X.append(X)
+        self.Y.append(Y)
+
+class LinearYeastExample(DiGraphDot, LinearDynamicsMixin):
+    def __init__(self, T, Nt, trials, plot=False, cmap=None):
+        path = os.path.dirname(__file__) + '/networks/yeast.dot'
+        DiGraphDot.__init__(self, path, plot=plot, cmap=cmap)
+        LinearDynamicsMixin.__init__(self,self.N,T,Nt,trials,self.N)
+        
+    def _add_graph_to_axis(self, ax):
+        pos = nx.circular_layout(self.graph)
+        node_colors = []
+        for n,node in enumerate(self.graph.nodes(data=True)):
+            name, attr = node
+            rgba = tuple(attr['color'])
+            hex = to_hex(rgba,keep_alpha=True)
+            node_colors.append(rgba)
+        nx.draw(self.graph,node_color=node_colors,pos=pos,with_labels=True, font_size=8, ax=ax)
+        
+    def _add_dyn_to_axis(self, ax1, ax2, trial_idx=0):
+         for n,node in enumerate(self.graph.nodes(data=True)):
+             name, attr = node
+             rgba = tuple(attr['color'])
+             ax1.plot(self.X[trial_idx,:,n],color=rgba)
+             ax2.plot(self.Y[trial_idx,:,n],color=rgba)
+              
+        
+ 

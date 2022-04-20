@@ -6,6 +6,8 @@
 void lin_grn_sim(int N, int Nrecord, double T, int Nt, double* X, double* x0,
                  double* W, double* mat){
 
+  /* we simulate gene expression by alternating updates*/
+
   int s;
   /* Inititalize x */
   for(s=0;s<2*N;s++){
