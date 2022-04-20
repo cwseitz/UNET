@@ -9,7 +9,6 @@ from torch import logsumexp
 from torch.distributions import Normal, Poisson
 from torch.distributions import kl_divergence as kl
 
-from arwn import REGISTRY_KEYS
 from arwn._compat import Literal
 from arwn.distributions import NegativeBinomial, ZeroInflatedNegativeBinomial
 from arwn.module.base import BaseModuleClass, LossRecorder, auto_move_data
@@ -22,9 +21,7 @@ torch.backends.cudnn.benchmark = True
 class VAE(BaseModuleClass):
     """
     Variational auto-encoder model.
-
     This is an implementation of the arwn model described in [Lopez18]_
-
     Parameters
     ----------
     n_input
@@ -47,7 +44,6 @@ class VAE(BaseModuleClass):
         Dropout rate for neural networks
     dispersion
         One of the following
-
         * ``'gene'`` - dispersion parameter of NB is constant per gene across cells
         * ``'gene-batch'`` - dispersion can differ between different batches
         * ``'gene-label'`` - dispersion can differ between different labels
@@ -56,13 +52,11 @@ class VAE(BaseModuleClass):
         Log(data+1) prior to encoding for numerical stability. Not normalization.
     gene_likelihood
         One of
-
         * ``'nb'`` - Negative binomial distribution
         * ``'zinb'`` - Zero-inflated negative binomial distribution
         * ``'poisson'`` - Poisson distribution
     latent_distribution
         One of
-
         * ``'normal'`` - Isotropic normal
         * ``'ln'`` - Logistic normal with normal params N(0, 1)
     encode_covariates
@@ -253,7 +247,6 @@ class VAE(BaseModuleClass):
     def _compute_local_library_params(self, batch_index):
         """
         Computes local library parameters.
-
         Compute two tensors of shape (batch_index.shape[0], 1) where each
         element corresponds to the mean and variances, respectively, of the
         log library sizes in the batch the cell corresponds to.
@@ -271,7 +264,6 @@ class VAE(BaseModuleClass):
     def inference(self, x, batch_index, cont_covs=None, cat_covs=None, n_samples=1):
         """
         High level inference method.
-
         Runs the inference (encoder) model.
         """
         x_ = x
@@ -424,9 +416,7 @@ class VAE(BaseModuleClass):
     ) -> np.ndarray:
         r"""
         Generate observation samples from the posterior predictive distribution.
-
         The posterior predictive distribution is written as :math:`p(\hat{x} \mid x)`.
-
         Parameters
         ----------
         tensors
@@ -435,7 +425,6 @@ class VAE(BaseModuleClass):
             Number of required samples for each cell
         library_size
             Library size to scale scamples to
-
         Returns
         -------
         x_new : :py:class:`torch.Tensor`
@@ -554,134 +543,4 @@ class VAE(BaseModuleClass):
         return log_lkl
 
 
-class LDVAE(VAE):
-    """
-    Linear-decoded Variational auto-encoder model.
 
-    Implementation of [Svensson20]_.
-
-    This model uses a linear decoder, directly mapping the latent representation
-    to gene expression levels. It still uses a deep neural network to encode
-    the latent representation.
-
-    Compared to standard VAE, this model is less powerful, but can be used to
-    inspect which genes contribute to variation in the dataset. It may also be used
-    for all arwn tasks, like differential expression, batch correction, imputation, etc.
-    However, batch correction may be less powerful as it assumes a linear model.
-
-    Parameters
-    ----------
-    n_input
-        Number of input genes
-    n_batch
-        Number of batches
-    n_labels
-        Number of labels
-    n_hidden
-        Number of nodes per hidden layer (for encoder)
-    n_latent
-        Dimensionality of the latent space
-    n_layers_encoder
-        Number of hidden layers used for encoder NNs
-    dropout_rate
-        Dropout rate for neural networks
-    dispersion
-        One of the following
-
-        * ``'gene'`` - dispersion parameter of NB is constant per gene across cells
-        * ``'gene-batch'`` - dispersion can differ between different batches
-        * ``'gene-label'`` - dispersion can differ between different labels
-        * ``'gene-cell'`` - dispersion can differ for every gene in every cell
-    log_variational
-        Log(data+1) prior to encoding for numerical stability. Not normalization.
-    gene_likelihood
-        One of
-
-        * ``'nb'`` - Negative binomial distribution
-        * ``'zinb'`` - Zero-inflated negative binomial distribution
-    use_batch_norm
-        Bool whether to use batch norm in decoder
-    bias
-        Bool whether to have bias term in linear decoder
-    """
-
-    def __init__(
-        self,
-        n_input: int,
-        n_batch: int = 0,
-        n_labels: int = 0,
-        n_hidden: int = 128,
-        n_latent: int = 10,
-        n_layers_encoder: int = 1,
-        dropout_rate: float = 0.1,
-        dispersion: str = "gene",
-        log_variational: bool = True,
-        gene_likelihood: str = "nb",
-        use_batch_norm: bool = True,
-        bias: bool = False,
-        latent_distribution: str = "normal",
-        **vae_kwargs,
-    ):
-        super().__init__(
-            n_input=n_input,
-            n_batch=n_batch,
-            n_labels=n_labels,
-            n_hidden=n_hidden,
-            n_latent=n_latent,
-            n_layers=n_layers_encoder,
-            dropout_rate=dropout_rate,
-            dispersion=dispersion,
-            log_variational=log_variational,
-            gene_likelihood=gene_likelihood,
-            latent_distribution=latent_distribution,
-            use_observed_lib_size=False,
-            **vae_kwargs,
-        )
-        self.use_batch_norm = use_batch_norm
-        self.z_encoder = Encoder(
-            n_input,
-            n_latent,
-            n_layers=n_layers_encoder,
-            n_hidden=n_hidden,
-            dropout_rate=dropout_rate,
-            distribution=latent_distribution,
-            use_batch_norm=True,
-            use_layer_norm=False,
-        )
-        self.l_encoder = Encoder(
-            n_input,
-            1,
-            n_layers=1,
-            n_hidden=n_hidden,
-            dropout_rate=dropout_rate,
-            use_batch_norm=True,
-            use_layer_norm=False,
-        )
-        self.decoder = LinearDecoderarwn(
-            n_latent,
-            n_input,
-            n_cat_list=[n_batch],
-            use_batch_norm=use_batch_norm,
-            use_layer_norm=False,
-            bias=bias,
-        )
-
-    @torch.no_grad()
-    def get_loadings(self) -> np.ndarray:
-        """Extract per-gene weights (for each Z, shape is genes by dim(Z)) in the linear decoder."""
-        # This is BW, where B is diag(b) batch norm, W is weight matrix
-        if self.use_batch_norm is True:
-            w = self.decoder.factor_regressor.fc_layers[0][0].weight
-            bn = self.decoder.factor_regressor.fc_layers[0][1]
-            sigma = torch.sqrt(bn.running_var + bn.eps)
-            gamma = bn.weight
-            b = gamma / sigma
-            b_identity = torch.diag(b)
-            loadings = torch.matmul(b_identity, w)
-        else:
-            loadings = self.decoder.factor_regressor.fc_layers[0][0].weight
-        loadings = loadings.detach().cpu().numpy()
-        if self.n_batch > 1:
-            loadings = loadings[:, : -self.n_batch]
-
-        return loadings

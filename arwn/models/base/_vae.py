@@ -3,21 +3,20 @@ from typing import Dict, Optional, Sequence, Union
 
 import numpy as np
 import torch
-from anndata import AnnData
-from torch.distributions import Normal
 
+from torch.distributions import Normal
 from ._log_likelihood import compute_elbo, compute_reconstruction_error
 
 logger = logging.getLogger(__name__)
 
 
 class VAEMixin:
-    """Univseral VAE methods."""
+    """Universal VAE methods."""
 
     @torch.no_grad()
     def get_elbo(
         self,
-        adata: Optional[AnnData] = None,
+        data = None,
         indices: Optional[Sequence[int]] = None,
         batch_size: Optional[int] = None,
     ) -> float:
@@ -37,17 +36,14 @@ class VAEMixin:
         batch_size
             Minibatch size for data loading into model. Defaults to `arwn.settings.batch_size`.
         """
-        adata = self._validate_anndata(adata)
-        scdl = self._make_data_loader(
-            adata=adata, indices=indices, batch_size=batch_size
-        )
-        elbo = compute_elbo(self.module, scdl)
+
+        elbo = compute_elbo(self.module, data)
         return -elbo
 
     @torch.no_grad()
     def get_marginal_ll(
         self,
-        adata: Optional[AnnData] = None,
+        data = None,
         indices: Optional[Sequence[int]] = None,
         n_mc_samples: int = 1000,
         batch_size: Optional[int] = None,
@@ -70,15 +66,10 @@ class VAEMixin:
         batch_size
             Minibatch size for data loading into model. Defaults to `arwn.settings.batch_size`.
         """
-        adata = self._validate_anndata(adata)
-        if indices is None:
-            indices = np.arange(adata.n_obs)
-        scdl = self._make_data_loader(
-            adata=adata, indices=indices, batch_size=batch_size
-        )
+
         if hasattr(self.module, "marginal_ll"):
             log_lkl = 0
-            for tensors in scdl:
+            for tensors in data:
                 log_lkl += self.module.marginal_ll(tensors, n_mc_samples=n_mc_samples)
         else:
             raise NotImplementedError(
@@ -91,7 +82,7 @@ class VAEMixin:
     @torch.no_grad()
     def get_reconstruction_error(
         self,
-        adata: Optional[AnnData] = None,
+        data = None,
         indices: Optional[Sequence[int]] = None,
         batch_size: Optional[int] = None,
     ) -> Union[float, Dict[str, float]]:
@@ -111,17 +102,14 @@ class VAEMixin:
         batch_size
             Minibatch size for data loading into model. Defaults to `arwn.settings.batch_size`.
         """
-        adata = self._validate_anndata(adata)
-        scdl = self._make_data_loader(
-            adata=adata, indices=indices, batch_size=batch_size
-        )
-        reconstruction_error = compute_reconstruction_error(self.module, scdl)
+
+        reconstruction_error = compute_reconstruction_error(self.module, data)
         return reconstruction_error
 
     @torch.no_grad()
     def get_latent_representation(
         self,
-        adata: Optional[AnnData] = None,
+        data = None,
         indices: Optional[Sequence[int]] = None,
         give_mean: bool = True,
         mc_samples: int = 5000,
@@ -152,14 +140,10 @@ class VAEMixin:
         latent_representation : np.ndarray
             Low-dimensional representation for each cell
         """
-        self._check_if_trained(warn=False)
+        self._check_if_trained(warn=False) 
 
-        adata = self._validate_anndata(adata)
-        scdl = self._make_data_loader(
-            adata=adata, indices=indices, batch_size=batch_size
-        )
         latent = []
-        for tensors in scdl:
+        for tensors in data:
             inference_inputs = self.module._get_inference_input(tensors)
             outputs = self.module.inference(**inference_inputs)
             qz_m = outputs["qz_m"]
