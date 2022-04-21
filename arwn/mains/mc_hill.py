@@ -17,6 +17,7 @@ def main(config):
     yeast = models.HillYeastExample(config['T'], 
                                       config['Nt'], 
                                       config['trials'],
+                                      config['Nrecord'],
                                       config['a'],
                                       config['b'],
                                       config['c'],
