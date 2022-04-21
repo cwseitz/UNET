@@ -4,7 +4,8 @@
 #include <math.h>
 
 void LinearSim(int N, int Nrecord, double T, int Nt, double* X, double* Y, 
-				    double* x0, double* y0, double* noise_x, double* noise_y, double* mat){
+				    double* x0, double* y0, double* noise_x, double* noise_y, double* mat, 
+				    double a, double b, double c){
 
   /* we simulate gene expression by alternating 
      updates between protein and RNA*/
@@ -19,43 +20,34 @@ void LinearSim(int N, int Nrecord, double T, int Nt, double* X, double* Y,
   int i,j,k;
   double p;
   double dt = T/Nt;
-  double a = 0.1; //translation rate
-  double b = 0.1; //protein degradation rate
-  double c = 0.1; //RNA degradation rate
 
   for(i=1;i<Nt;i++){
-    printf("Time step: %d\n", i);
+    //printf("Time step: %d\n", i);
     
     //update protein
     for(j=0;j<N;j++){
-      double dd = a*X[(i-1)*N+j] - b*Y[(i-1)*N+j];
-      dd = dd + noise_y[i*N+j];
-      Y[i*N+j] = Y[(i-1)*N+j] + dt*dd;
+      double dp = a*X[(i-1)*N+j] - b*Y[(i-1)*N+j];
+      dp = dp + noise_y[i*N+j];
+      Y[i*N+j] = Y[(i-1)*N+j] + dt*dp;
 
 	  //enforce bounds
       if (Y[i*N+j] < 0){
         Y[i*N+j] = 0;
        }
-      else if (X[i*N+j] > 1000){
-        Y[i*N+j] = 1000;
-      }
      }
      
     //update RNA 
     for(j=0;j<N;j++){
-      double dd = 0;
+      double dr = 0;
       for(k=0;k<N;k++){
-        dd = dd + mat[j*N+k]*Y[(i-1)*N+k];
+        dr = dr + mat[j*N+k]*Y[(i-1)*N+k];
       }
-	  dd = dd - c*X[(i-1)*N+j] + noise_x[i*N+j];
-      X[i*N+j] = X[(i-1)*N+j] + dt*dd;
+	  dr = dr - c*X[(i-1)*N+j] + noise_x[i*N+j];
+      X[i*N+j] = X[(i-1)*N+j] + dt*dr;
 
       if (X[i*N+j] < 0){
         X[i*N+j] = 0;
        }
-      else if (X[i*N+j] > 1000){
-        X[i*N+j] = 1000;
-      }
      }
      
      
@@ -81,7 +73,10 @@ static PyObject* Linear(PyObject* Py_UNUSED(self), PyObject* args) {
   PyObject* _mat = PyList_GetItem(list, 6);
   PyObject* _noise_x = PyList_GetItem(list, 7);
   PyObject* _noise_y = PyList_GetItem(list, 8);
-  
+  double a = PyFloat_AsDouble(PyList_GetItem(list, 9)); //translation rate
+  double b = PyFloat_AsDouble(PyList_GetItem(list, 10)); //protein degradation rate
+  double c = PyFloat_AsDouble(PyList_GetItem(list, 11)); //RNA degradation rate
+    
   double* X = malloc(N*Nt*sizeof(double));
   double* Y = malloc(N*Nt*sizeof(double));
   double* x0 = malloc(N*sizeof(double));
@@ -129,23 +124,24 @@ static PyObject* Linear(PyObject* Py_UNUSED(self), PyObject* args) {
   printf("Nt = %i\n", Nt);
   printf("###################\n\n");
 
-  LinearSim(N, Nrecord, T, Nt, X, Y, x0, y0, noise_x, noise_y, mat);
+  LinearSim(N, Nrecord, T, Nt, X, Y, x0, y0, noise_x, noise_y, mat, a, b, c);
+  printf("%f,%f\n",X[100],Y[100]);
+
+  free(x0);
+  free(y0);
+  free(mat);
+  free(noise_x);
+  free(noise_y);
 
   npy_intp dims[2] = {Nt,N}; //row major order
   //Copy data into python list objects and free mem
   PyObject *X_out = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
   memcpy(PyArray_DATA(X_out), X, N*Nt*sizeof(double));
+  free(X);
 
   PyObject *Y_out = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
   memcpy(PyArray_DATA(Y_out), Y, N*Nt*sizeof(double));
-
-  free(X);
-  free(x0);
   free(Y);
-  free(y0);
-  free(mat);
-  free(noise_x);
-  free(noise_y);
 
   return Py_BuildValue("(OO)", X_out, Y_out);
 

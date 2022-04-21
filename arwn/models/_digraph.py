@@ -46,8 +46,8 @@ class DiGraphDot:
 		    src = edge.get_source().replace('"', '')
 		    dst = edge.get_destination().replace('"', '')
 		    val = edge.obj_dict['attributes']['value'].replace('"', '')
-		    if val == '+': color = 'blue'; weight = 1
-		    if val == '-': color = 'red'; weight = -1
+		    if val == '+': color = 'red'; weight = 1
+		    if val == '-': color = 'blue'; weight = -1
 		    self.graph.add_edge(src,dst,color=color,value=val, weight=weight)
 		    
 	def _get_temp(self, path):

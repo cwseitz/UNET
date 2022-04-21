@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 
-void lmc_grn_sim(int N, int Nrecord, double T, int Nt,
+void HillSim(int N, int Nrecord, double T, int Nt,
                  double* X, double* x0, double* w1, double* w2,
                  double* h, double* K, double* b, double* lam, double* q, double* n){
 
@@ -32,7 +32,7 @@ void lmc_grn_sim(int N, int Nrecord, double T, int Nt,
   }
 }
 
-static PyObject* lmc_grn(PyObject* Py_UNUSED(self), PyObject* args) {
+static PyObject* Hill(PyObject* Py_UNUSED(self), PyObject* args) {
 
   PyObject* list;
 
@@ -130,7 +130,7 @@ static PyObject* lmc_grn(PyObject* Py_UNUSED(self), PyObject* args) {
     printf("Nt = %f\n", Nt);
     printf("###################\n\n");
 
-    lmc_grn_sim(N, Nrecord, T, Nt, X, x0, w1, w2, h, K, b, lam, q, n);
+    HillSim(N, Nrecord, T, Nt, X, x0, w1, w2, h, K, b, lam, q, n);
 
   npy_intp dims[2] = {Nt,N}; //row major order
   //Copy data into python list objects and free mem

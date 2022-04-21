@@ -1,15 +1,14 @@
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <stdio.h>
-#include "lmc_grn.c"
-#include "lin_grn.c"
+#include "hill.c"
+#include "phixer.c"
 #include "linear.c"
 
 
 static PyMethodDef GRNMethods[] = {
-    {"lmc_grn", lmc_grn, METH_VARARGS, "Python interface"},
+    {"Hill", Hill, METH_VARARGS, "Python interface"},
     {"Linear", Linear, METH_VARARGS, "Python interface"},
-    {"lin_grn", lin_grn, METH_VARARGS, "Python interface"},
     {NULL, NULL, 0, NULL},
 };
 

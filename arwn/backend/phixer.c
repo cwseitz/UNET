@@ -408,20 +408,4 @@ compare_floats(const void *a, const void *b)
        return (*da > *db) - (*da < *db);
      }
 
-/*
- * Percentile implementation reference
- * http://commons.apache.org/math/apidocs/org/apache/commons/math/stat/descriptive/rank/Percentile.html
-*/
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
 
