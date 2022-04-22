@@ -18,7 +18,7 @@ class DynamicsBase:
 
 class HillDynamicsMixin(DynamicsBase):
     def __init__(self,N,T,Nt,trials,Nrecord,a,b,c,x0_min,x0_max,y0_min,y0_max,mu_nx,sg_nx,mu_ny,sg_ny,
-                 h,mat,bias,q,n):
+                 h,bias,q,n):
         super(HillDynamicsMixin, self).__init__(N,T,Nt,trials,Nrecord)
         self.a = a
         self.b = b
@@ -32,7 +32,6 @@ class HillDynamicsMixin(DynamicsBase):
         self.sg_nx = sg_nx
         self.sg_ny = sg_ny
         self.h = h
-        self.mat = mat
         self.bias = bias
         self.q = q
         self.n = n
@@ -53,7 +52,7 @@ class HillDynamicsMixin(DynamicsBase):
             this_noise_y = list(self.noise_y[i].flatten())
             params = [self.N,self.Nrecord,self.T,self.Nt,x0,y0,
                       this_noise_x,this_noise_y,h,mat,bias,a,b,c,q,n]
-            X,Y = backend.Linear(params)
+            X,Y = backend.Hill(params)
             self.add_trial(X,Y)
 
         self.X = np.array(self.X)
@@ -68,13 +67,13 @@ class HillDynamicsMixin(DynamicsBase):
             self.mat = np.random.normal(0,1,size=(self.N,self.N))
             self.mat = np.multiply(self.mat, self.adj)
 
-            self.h = self.h*np.ones((N,N))
-            self.a = self.c*np.ones((N,))
-            self.b = self.b*np.ones((N,))
-            self.c = self.c*np.ones((N,))
-            self.q = np.ones((N,))
-            self.n = np.ones((N,N))
-            self.bias = self.bias*np.zeros((N,))
+            self.h = self.h*np.ones((self.N,self.N))
+            self.a = self.c*np.ones((self.N,))
+            self.b = self.b*np.ones((self.N,))
+            self.c = self.c*np.ones((self.N,))
+            self.q = np.ones((self.N,))
+            self.n = np.ones((self.N,self.N))
+            self.bias = self.bias*np.zeros((self.N,))
 
     def add_trial(self,X,Y):
         self.X.append(X)
@@ -86,7 +85,7 @@ class HillYeastExample(DiGraphDot, HillDynamicsMixin):
         path = os.path.dirname(__file__) + '/networks/yeast.dot'
         DiGraphDot.__init__(self, path, plot=plot, cmap=cmap)
         HillDynamicsMixin.__init__(self,self.N,T,Nt,trials,self.N,a,b,c,x0_min,x0_max,y0_min,y0_max,mu_nx,sg_nx,mu_ny,sg_ny,
-                 h,mat,bias,q,n)
+                 h,bias,q,n)
         
     def _add_graph_to_axis(self, ax):
         pos = nx.circular_layout(self.graph)

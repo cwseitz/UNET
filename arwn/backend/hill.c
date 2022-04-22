@@ -6,19 +6,19 @@
 double HillFunction(double y, double m, double n, double h){
 
 	double d,f;
-	d = pow(y,n)/(pow(y,n) + pow(h,n);
+	d = pow(y,n)/(pow(y,n) + pow(h,n));
 	if (m > 0){
-	    f = m*d
+	    f = m*d;
 	}
 	else if(m < 0){
-	    f = m*(1-d)
+	    f = m*(1-d);
 	}
 	return f;
 }
 
 void HillSim(int N, int Nrecord, double T, int Nt, double* X, double* Y, 
 	     double* x0, double* y0, double* noise_x, double* noise_y, double* mat, 
-             double a, double b, double c, double* bias, double* h, double* c, 
+             double* a, double* b, double* c, double* bias, double* h,
              double* q, double* n){
 
   /* we simulate gene expression by alternating 
@@ -40,7 +40,7 @@ void HillSim(int N, int Nrecord, double T, int Nt, double* X, double* Y,
     
     //update protein
     for(j=0;j<N;j++){
-      double dp = a*X[(i-1)*N+j] - b*Y[(i-1)*N+j];
+      double dp = a[j]*X[(i-1)*N+j] - b[j]*Y[(i-1)*N+j];
       dp = dp + noise_y[i*N+j];
       Y[i*N+j] = Y[(i-1)*N+j] + dt*dp;
 
@@ -54,9 +54,9 @@ void HillSim(int N, int Nrecord, double T, int Nt, double* X, double* Y,
     for(j=0;j<N;j++){
       double dr = 0;
       for(k=0;k<N;k++){
-        dr = dr + HillFunction(Y[(i-1)*N+k],mat[j*N+k],n,h)
+        dr = dr + HillFunction(Y[(i-1)*N+k],mat[j*N+k],n[j*N+k],h[j*N+k]);
       }
-      dr = dr - c*X[(i-1)*N+j] + noise_x[i*N+j];
+      dr = dr - c[j]*X[(i-1)*N+j] + noise_x[i*N+j];
       X[i*N+j] = X[(i-1)*N+j] + dt*dr;
 
       if (X[i*N+j] < 0){
@@ -192,24 +192,31 @@ static PyObject* Hill(PyObject* Py_UNUSED(self), PyObject* args) {
     printf("Nt = %f\n", Nt);
     printf("###################\n\n");
 
-    HillSim(N, Nrecord, T, Nt, X, Y, x0, y0, noise_x, noise_y, mat, a, b, c, bias, h, c, q, n);
+    HillSim(N, Nrecord, T, Nt, X, Y, x0, y0, noise_x, noise_y, mat, a, b, c, bias, h, q, n);
 
   npy_intp dims[2] = {Nt,N}; //row major order
   //Copy data into python list objects and free mem
   PyObject *X_out = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
   memcpy(PyArray_DATA(X_out), X, N*Nt*sizeof(double));
 
+  PyObject *Y_out = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+  memcpy(PyArray_DATA(Y_out), Y, N*Nt*sizeof(double));
+
   free(X);
+  free(Y);
   free(x0);
+  free(y0);
   free(noise_x);
   free(noise_y);
   free(h);
-  free(K);
+  free(mat);
+  free(bias);
+  free(a);
   free(b);
-  free(lam);
+  free(c);
   free(q);
   free(n);
 
-  return Py_BuildValue("O", X_out);
+  return Py_BuildValue("(OO)", X_out, Y_out);
 
 }
