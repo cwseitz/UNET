@@ -1,13 +1,14 @@
 import numpy as np
 import torch
 from torchvision.utils import make_grid
-from base import BaseTrainer
-from ..utils import inf_loop, MetricTracker
 from abc import abstractmethod
 from numpy import inf
+from .base import BaseTrainer
+from ..utils import inf_loop, MetricTracker
+from ._vae_train_mixin import VAETrainingMixin
 from ..logger import TensorboardWriter
 
-class SCVITrainer(BaseTrainer):
+class SCVITrainer(BaseTrainer, VAETrainingMixin):
 	"""
 	Trainer class
 	"""

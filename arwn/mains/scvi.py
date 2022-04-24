@@ -5,12 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import arwn.data_loaders as data_loaders
-import arwn.models.loss as module_loss
-import arwn.models.metric as module_metric
-import arwn.models as module_arch
+import arwn.torch_models as module_arch
 from arwn.utils import ConfigParser
 from arwn.utils import prepare_device
-from arwn.train import Trainer
+from arwn.train import SCVITrainer
 from torchsummary import summary
 torch.cuda.empty_cache()
 
@@ -30,11 +28,11 @@ def main(config):
     data_loader = config.init_obj('data_loader', data_loaders)
     valid_data_loader = data_loader.split_validation()
 
-    """
     # build model architecture, then print to console
     model = config.init_obj('arch', module_arch)
     logger.info(model)
-
+    
+    """
     # prepare for (multi-device) GPU training
     device, device_ids = prepare_device(config['n_gpu'])
     torch.cuda.set_per_process_memory_fraction(0.5, device=device)

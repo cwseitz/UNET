@@ -6,7 +6,7 @@ import json
 import argparse
 from matplotlib import cm
 from arwn.utils import format_ax
-from arwn import models
+from arwn import dynamics
 
 #a - translation rate
 #b - protein degradation rate
@@ -14,7 +14,7 @@ from arwn import models
 
 def main(config):
 
-    yeast = models.LinearYeast10(config['T'], 
+    yeast = dynamics.LinearYeast10(config['T'], 
                                       config['Nt'], 
                                       config['trials'],
                                       config['a'],

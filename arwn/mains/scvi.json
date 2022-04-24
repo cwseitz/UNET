@@ -4,7 +4,11 @@
 
 		"arch": {
 				"type": "SCVI",
-				"args": {}
+				"args": {
+				          "n_hidden": 128,
+				          "n_latent": 10,
+				          "n_layers": 1
+				}
 		},
 		"data_loader": {
 				"type": "CortexDataLoader",
@@ -13,8 +17,7 @@
 						"batch_size": 5,
 						"shuffle": true,
 						"validation_split": 0.2,
-						"num_workers": 2,
-						"crop_dim": 256
+						"num_workers": 2
 				}
 		},
 		"optimizer": {

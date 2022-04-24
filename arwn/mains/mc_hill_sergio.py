@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from arwn.models import sergio
+from arwn.dynamics import sergio
 from arwn import get_root
 from arwn.utils import format_ax
 root = get_root()
