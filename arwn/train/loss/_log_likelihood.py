@@ -2,7 +2,8 @@
 import torch
 
 
-def compute_elbo(vae, data_loader, feed_labels=True, **kwargs):
+def ELBO(data, ouput, feed_labels=True, **kwargs):
+
     """
     Computes the ELBO.
 
@@ -13,19 +14,23 @@ def compute_elbo(vae, data_loader, feed_labels=True, **kwargs):
     plus a term that is constant with respect to the variational distribution.
     It still gives good insights on the modeling of the data, and is fast to compute.
     """
+    
+    """
     # Iterate once over the data and compute the elbo
     elbo = 0
     for tensors in data_loader:
-        _, _, arwn_loss = vae(tensors, **kwargs)
+        _, _, scvi_loss = vae(tensors, **kwargs)
 
-        recon_loss = arwn_loss.reconstruction_loss
-        kl_local = arwn_loss.kl_local
+        recon_loss = scvi_loss.reconstruction_loss
+        kl_local = scvi_loss.kl_local
         elbo += torch.sum(recon_loss + kl_local).item()
 
-    kl_global = arwn_loss.kl_global
+    kl_global = scvi_loss.kl_global
     n_samples = len(data_loader.indices)
     elbo += kl_global
     return elbo / n_samples
+    """
+    return 0
 
 
 # do each one

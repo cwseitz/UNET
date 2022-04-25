@@ -5,10 +5,9 @@ from abc import abstractmethod
 from numpy import inf
 from .base import BaseTrainer
 from ..utils import inf_loop, MetricTracker
-from ._vae_train_mixin import VAETrainingMixin
 from ..logger import TensorboardWriter
 
-class SCVITrainer(BaseTrainer, VAETrainingMixin):
+class SCVITrainer(BaseTrainer):
 	"""
 	Trainer class
 	"""
@@ -43,11 +42,11 @@ class SCVITrainer(BaseTrainer, VAETrainingMixin):
 		"""
 		self.model.train()
 		self.train_metrics.reset()
-		for batch_idx, (data, target) in enumerate(self.data_loader):
-			data, target = data.to(self.device, dtype=torch.float), target.to(self.device, dtype=torch.float)
+		for batch_idx, data in enumerate(self.data_loader):
+			data = data.to(self.device, dtype=torch.float)
 			self.optimizer.zero_grad()
 			output = self.model(data)
-			loss = self.criterion(output, target)
+			loss = self.criterion(data, output)
 			loss.backward()
 			self.optimizer.step()
 
@@ -76,30 +75,6 @@ class SCVITrainer(BaseTrainer, VAETrainingMixin):
 			print(self.lr_scheduler.get_lr())
 		return log
 
-	def _valid_epoch(self, epoch):
-		"""
-		Validate after training an epoch
-		:param epoch: Integer, current training epoch.
-		:return: A log that contains information about validation
-		"""
-		self.model.eval()
-		self.valid_metrics.reset()
-		with torch.no_grad():
-			for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-				data, target = data.to(self.device, dtype=torch.float), target.to(self.device, dtype=torch.float)
-
-				output = self.model(data)
-				loss = self.criterion(output, target)
-
-				self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
-				self.valid_metrics.update('loss', loss.item())
-				for met in self.metric_ftns:
-					self.valid_metrics.update(met.__name__, met(output, target))
-
-		# add histogram of model parameters to the tensorboard
-		for name, p in self.model.named_parameters():
-			self.writer.add_histogram(name, p, bins='auto')
-		return self.valid_metrics.result()
 
 	def _progress(self, batch_idx):
 		base = '[{}/{} ({:.0f}%)]'

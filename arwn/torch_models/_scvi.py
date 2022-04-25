@@ -66,6 +66,9 @@ class SCVI(BaseModel):
 
     def __init__(
         self,
+        n_input,
+        n_labels,
+        n_continuous_cov,
         n_hidden: int = 128,
         n_latent: int = 10,
         n_layers: int = 1,
@@ -76,15 +79,14 @@ class SCVI(BaseModel):
         **model_kwargs,
     ):
         super(SCVI, self).__init__()
-        #n_batch = self.summary_stats.n_batch
+
         library_log_means, library_log_vars = None, None
 
 
         self.module = VAE(
-            n_input=self.summary_stats.n_vars,
-            n_batch=n_batch,
-            n_labels=self.summary_stats.n_labels,
-            n_continuous_cov=self.summary_stats.get("n_extra_continuous_covs", 0),
+            n_input=n_input,
+            n_labels=n_labels,
+            n_continuous_cov=n_continuous_cov,
             n_cats_per_cov=None,
             n_hidden=n_hidden,
             n_latent=n_latent,
@@ -99,7 +101,7 @@ class SCVI(BaseModel):
             **model_kwargs,
         )
         self._model_summary_string = (
-            "arwn Model with the following params: \nn_hidden: {}, n_latent: {}, n_layers: {}, dropout_rate: "
+            "SCVI Model with the following params: \nn_hidden: {}, n_latent: {}, n_layers: {}, dropout_rate: "
             "{}, dispersion: {}, gene_likelihood: {}, latent_distribution: {}"
         ).format(
             n_hidden,
@@ -110,5 +112,5 @@ class SCVI(BaseModel):
             gene_likelihood,
             latent_distribution,
         )
-        self.init_params_ = self._get_init_params(locals())
+        #self.init_params_ = self._get_init_params(locals())
 

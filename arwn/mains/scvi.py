@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 import arwn.data_loaders as data_loaders
 import arwn.torch_models as module_arch
+import arwn.train.loss as module_loss
+
 from arwn.utils import ConfigParser
 from arwn.utils import prepare_device
 from arwn.train import SCVITrainer
@@ -27,32 +29,33 @@ def main(config):
     # setup data_loader instances
     data_loader = config.init_obj('data_loader', data_loaders)
     valid_data_loader = data_loader.split_validation()
+    nsamples, nvars = data_loader.dataset.data.shape
 
     # build model architecture, then print to console
     model = config.init_obj('arch', module_arch)
     logger.info(model)
     
-    """
     # prepare for (multi-device) GPU training
     device, device_ids = prepare_device(config['n_gpu'])
     torch.cuda.set_per_process_memory_fraction(0.5, device=device)
     model = model.to(device)
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)
+       
 
-    summary(model, (1, 256, 256))
-
+    #summary(model, (data_loader.batch_size,nvars))
+ 
     # get function handles of loss and metrics
     criterion = getattr(module_loss, config['loss'])
+    
     metrics = [getattr(module_metric, met) for met in config['metrics']]
 
-    # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = config.init_obj('optimizer', torch.optim, trainable_params)
     lr_scheduler = config.init_obj(
         'lr_scheduler', torch.optim.lr_scheduler, optimizer)
 
-    trainer = Trainer(model, criterion, metrics, optimizer,
+    trainer = SCVITrainer(model, criterion, metrics, optimizer,
                       config=config,
                       device=device,
                       data_loader=data_loader,
@@ -60,7 +63,6 @@ def main(config):
                       lr_scheduler=lr_scheduler)
 
     trainer.train()
-    """
 
 
 if __name__ == '__main__':

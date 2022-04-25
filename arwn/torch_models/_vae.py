@@ -10,6 +10,7 @@ from torch.distributions import Normal, Poisson
 from torch.distributions import kl_divergence as kl
 
 from arwn._compat import Literal
+from arwn._constants import REGISTRY_KEYS
 from arwn.distributions import NegativeBinomial, ZeroInflatedNegativeBinomial
 from ._module import BaseModuleClass, LossRecorder, auto_move_data
 from ._components import DecoderSCVI, Encoder, LinearDecoderSCVI, one_hot
@@ -85,7 +86,6 @@ class VAE(BaseModuleClass):
     def __init__(
         self,
         n_input: int,
-        n_batch: int = 0,
         n_labels: int = 0,
         n_hidden: int = 128,
         n_latent: int = 10,
@@ -113,7 +113,6 @@ class VAE(BaseModuleClass):
         self.log_variational = log_variational
         self.gene_likelihood = gene_likelihood
         # Automatically deactivate if useless
-        self.n_batch = n_batch
         self.n_labels = n_labels
         self.latent_distribution = latent_distribution
         self.encode_covariates = encode_covariates
@@ -157,8 +156,10 @@ class VAE(BaseModuleClass):
         # z encoder goes from the n_input-dimensional data to an n_latent-d
         # latent space representation
         n_input_encoder = n_input + n_continuous_cov * encode_covariates
-        cat_list = [n_batch] + list([] if n_cats_per_cov is None else n_cats_per_cov)
-        encoder_cat_list = cat_list if encode_covariates else None
+        #cat_list = [n_batch] + list([] if n_cats_per_cov is None else n_cats_per_cov)
+        #encoder_cat_list = cat_list if encode_covariates else None
+        cat_list = None
+        encoder_cat_list = None
         self.z_encoder = Encoder(
             n_input_encoder,
             n_latent,
@@ -187,7 +188,7 @@ class VAE(BaseModuleClass):
         )
         # decoder goes from n_latent-dimensional space to n_input-d data
         n_input_decoder = n_latent + n_continuous_cov
-        self.decoder = Decoderarwn(
+        self.decoder = DecoderSCVI(
             n_input_decoder,
             n_input,
             n_cat_list=cat_list,

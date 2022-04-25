@@ -50,8 +50,8 @@ class CortexDataset(Dataset):
         data_df.to_csv(self.dir + '/cortex.csv')
         
     def _read_csv(self):
-        self.data = pd.read_csv(self.dir + '/cortex.csv')
+        self.data = pd.read_csv(self.dir + '/cortex.csv').to_numpy()
     def __len__(self):
         return len(self.data)
     def __getitem__(self, idx):
-        return df.iloc[[idx]].to_numpy()
+        return self.data[idx]
