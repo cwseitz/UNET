@@ -80,21 +80,21 @@ class LossRecorder:
             total += value
         return total
 
-    #@property
-    #def loss(self) -> Union[torch.Tensor, jnp.ndarray]:
-    #    return self._get_dict_sum(self._loss)
+#    @property
+#    def loss(self) -> Union[torch.Tensor, jnp.ndarray]:
+#        return self._get_dict_sum(self._loss)
 
-    #@property
-    #def reconstruction_loss(self) -> Union[torch.Tensor, jnp.ndarray]:
-    #    return self._get_dict_sum(self._reconstruction_loss)
+#    @property
+#    def reconstruction_loss(self) -> Union[torch.Tensor, jnp.ndarray]:
+#        return self._get_dict_sum(self._reconstruction_loss)
 
-    #@property
-    #def kl_local(self) -> Union[torch.Tensor, jnp.ndarray]:
-    #    return self._get_dict_sum(self._kl_local)
+#    @property
+#    def kl_local(self) -> Union[torch.Tensor, jnp.ndarray]:
+#        return self._get_dict_sum(self._kl_local)
 
-    #@property
-    #def kl_global(self) -> Union[torch.Tensor, jnp.ndarray]:
-    #    return self._get_dict_sum(self._kl_global)
+#    @property
+#    def kl_global(self) -> Union[torch.Tensor, jnp.ndarray]:
+#        return self._get_dict_sum(self._kl_global)
 
 
 class BaseModuleClass(nn.Module):

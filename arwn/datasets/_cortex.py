@@ -1,7 +1,6 @@
 import csv
 import logging
 import os
-import anndata
 import numpy as np
 import pandas as pd
 from ._download import download

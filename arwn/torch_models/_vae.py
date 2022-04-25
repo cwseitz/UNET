@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import logsumexp
+from torch import nn
 from torch.distributions import Normal, Poisson
 from torch.distributions import kl_divergence as kl
 
@@ -22,7 +23,7 @@ torch.backends.cudnn.benchmark = True
 class VAE(BaseModuleClass):
     """
     Variational auto-encoder model.
-    This is an implementation of the arwn model described in [Lopez18]_
+    This is an implementation of the SCVI model described in [Lopez18]_
     Parameters
     ----------
     n_input

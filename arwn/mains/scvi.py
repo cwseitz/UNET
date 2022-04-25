@@ -37,14 +37,11 @@ def main(config):
     
     # prepare for (multi-device) GPU training
     device, device_ids = prepare_device(config['n_gpu'])
-    torch.cuda.set_per_process_memory_fraction(0.5, device=device)
+    #torch.cuda.set_per_process_memory_fraction(0.5, device=device)
     model = model.to(device)
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)
        
-
-    #summary(model, (data_loader.batch_size,nvars))
- 
     # get function handles of loss and metrics
     criterion = getattr(module_loss, config['loss'])
     
