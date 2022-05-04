@@ -2,14 +2,14 @@ import argparse
 import collections
 import torch
 import numpy as np
-import unet.data_loaders as data_loaders
-import unet.models.loss as module_loss
-import unet.models.metric as module_metric
+import arwn.data_loaders as data_loaders
+import arwn.train.loss as module_loss
+import arwn.train.metrics as module_metric
 import matplotlib.pyplot as plt
-import unet.models as module_arch
-from unet.utils import ConfigParser
-from unet.utils import prepare_device
-from unet.train import Trainer
+import arwn.torch_models as module_arch
+from arwn.utils import ConfigParser
+from arwn.utils import prepare_device
+from arwn.train import UNETTrainer
 from torchsummary import summary
 torch.cuda.empty_cache()
 
@@ -35,7 +35,6 @@ def main(config):
 
     # prepare for (multi-device) GPU training
     device, device_ids = prepare_device(config['n_gpu'])
-    torch.cuda.set_per_process_memory_fraction(0.5, device=device)
     model = model.to(device)
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)
@@ -52,7 +51,7 @@ def main(config):
     lr_scheduler = config.init_obj(
         'lr_scheduler', torch.optim.lr_scheduler, optimizer)
 
-    trainer = Trainer(model, criterion, metrics, optimizer,
+    trainer = UNETTrainer(model, criterion, metrics, optimizer,
                       config=config,
                       device=device,
                       data_loader=data_loader,

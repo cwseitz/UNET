@@ -1,17 +1,16 @@
 {
-		"name": "SCVI",
+		"name": "UNetModel",
 		"n_gpu": 1,
 
 		"arch": {
-				"type": "SCVI",
+				"type": "UNetModel",
 				"args": {
-		"n_hidden": 128,
-		"n_latent": 10,
-		"n_layers": 1
+		"n_channels": 1,
+		"n_classes": 3
 	}
 		},
 		"data_loader": {
-				"type": "SCVIDataLoader",
+				"type": "U2OSDataLoader",
 				"args":{
 						"data_dir": "data/",
 						"batch_size": 5,
