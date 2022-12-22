@@ -1,1 +1,0 @@
-digraph "Yeast-1" {rankdir=LR;"YDR207C";"YER130C";"YMR280C";"YJL089W";"YBR112C";"YDR207C" -> "YBR112C" [value="-"];"YDR207C" -> "YER130C" [value="-"];"YDR207C" -> "YJL089W" [value="+"];"YDR207C" -> "YMR280C" [value="-"];"YMR280C" -> "YJL089W" [value="+"];}
