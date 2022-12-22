@@ -1,1 +1,3 @@
 *.so
+/UNET/mains/data
+/UNET/mains/saved

@@ -3,14 +3,11 @@ import numpy
 
 def main():
     
-    setup(name="arwn",
+    setup(name="UNET",
           version="1.0.0",
-          description="Automated gene Regulatory netWork aNalysis",
+          description="unet",
           author="Clayton Seitz",
-          author_email="cwseitz@iu.edu",
-          ext_modules=[Extension("arwn.backend", ["arwn/backend/backend.c"],
-                       include_dirs = [numpy.get_include()],
-                       library_dirs = ['/usr/lib/x86_64-linux-gnu'])])
+          author_email="cwseitz@iu.edu")
 
 
 
