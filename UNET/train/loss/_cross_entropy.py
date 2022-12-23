@@ -65,13 +65,26 @@ def unet_weight_map(y, wc=None, w0=10, sigma=5):
     
     return w
 
-def CrossEntropyLoss(output, target, diagnostic=True):
+def plot(output):
+    output = F.softmax(output,dim=1)
+    idx = output.argmax(dim=1)
+    mask = F.one_hot(idx,num_classes=3)
+    mask = torch.permute(mask,(0,3,1,2))
+    fig, ax = plt.subplots(1,2,sharex=True,sharey=True)
+    ax[0].imshow(mask[0,0,:,:].detach().cpu().numpy(),cmap='gray')
+    ax[1].imshow(output[0,0,:,:].detach().cpu().numpy(),cmap='gray')
+    plt.show()
+
+def CrossEntropyLoss(output, target, diagnostic=False):
 
     if diagnostic: 
         fig, ax = plt.subplots(1,2)
         ax[0].imshow(output[0,0,:,:].detach().cpu().numpy())
         ax[1].imshow(target[0,0,:,:].detach().cpu().numpy())
         plt.show()
+        
+    plot(output)
+        
     return F.cross_entropy(output,target)
 
 def WeightedCrossEntropyLoss(output, target, weighted=False, diagnostic=False):
