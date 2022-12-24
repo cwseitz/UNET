@@ -10,14 +10,15 @@ from skimage.restoration import rolling_ball
 from skimage.filters import threshold_otsu
 
 class TrainDataGenerator:
-    def __init__(self,dir,file):
+    def __init__(self,dir,file,n0=0):
         self.dir = dir
         self.file = file
         self.stack = tifffile.imread(dir+file)
         self.pfx = file.split('.')[0]
+        self.n0 = n0
     def mark_boundaries(self):
         nt,nx,ny = self.stack.shape
-        for n in range(nt):
+        for n in range(n0,nt):
             image = self.stack[n]
             viewer = napari.Viewer()
             viewer.window.resize(2000, 1000)
@@ -32,7 +33,8 @@ class TrainDataGenerator:
             imsave(self.dir + self.pfx + f'_mask_{n}.tif',labels)
 
 
+n0 = 1
 dir = '/research3/shared/cwseitz/Analysis/221218-Hela-IFNG-16h-2_1/' 
 file = '221218-Hela-IFNG-16h-2_1_mxtiled_corrected_stack_blended.tif'
-train_generator = TrainDataGenerator(dir,file)
+train_generator = TrainDataGenerator(dir,file,n0=n0)
 train_generator.mark_boundaries()
