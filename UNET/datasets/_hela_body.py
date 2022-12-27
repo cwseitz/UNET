@@ -27,7 +27,7 @@ class HelaBodyDataset(Dataset):
 		return len(os.listdir(self.img_dir))
 
 	def __getitem__(self, idx):
-		files = os.listdir(self.img_dir)
+		files = sorted(os.listdir(self.img_dir))
 		img_path = os.path.join(self.img_dir, files[idx])
 		tgt_path = self.swap_suffix(os.path.join(self.tgt_dir, files[idx]))
 		image = imread(img_path).astype(np.float64)

@@ -28,7 +28,7 @@
 						"amsgrad": true
 				}
 		},
-		"loss": "CrossEntropyLoss",
+		"loss": "WeightedCrossEntropyLoss",
 		"metrics": ["BackgroundRecall",
 								"BoundaryRecall",
 								"InteriorRecall",
@@ -43,7 +43,7 @@
 				}
 		},
 		"trainer": {
-				"epochs": 1,
+				"epochs": 10,
 
 				"save_dir": "saved/",
 				"save_period": 1,
