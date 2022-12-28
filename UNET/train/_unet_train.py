@@ -6,6 +6,7 @@ from numpy import inf
 from .base import BaseTrainer
 from ..utils import inf_loop, MetricTracker
 from ..logger import TensorboardWriter
+import matplotlib.pyplot as plt
 
 class UNETTrainer(BaseTrainer):
     """
@@ -43,10 +44,14 @@ class UNETTrainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
-            print(data.shape)
             data, target = data.to(self.device, dtype=torch.float), target.to(self.device, dtype=torch.float)
             self.optimizer.zero_grad()
             output = self.model(data)
+            #fig, ax = plt.subplots(1,3)
+            #ax[0].imshow(output[0,0,:,:].cpu().detach().numpy())
+            #ax[1].imshow(output[0,1,:,:].cpu().detach().numpy())
+            #ax[2].imshow(output[0,2,:,:].cpu().detach().numpy())
+            #plt.show()
             loss = self.criterion(output, target)
             loss.backward()
             self.optimizer.step()

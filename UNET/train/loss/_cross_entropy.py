@@ -77,7 +77,7 @@ def plot(output,target):
     plt.show()
 
 def CrossEntropyLoss(output, target, diagnostic=False):
-    plot(output,target)
+    #plot(output,target)
     return F.cross_entropy(output,target)
 
 def WeightedCrossEntropyLoss(output, target, weighted=False, diagnostic=False):

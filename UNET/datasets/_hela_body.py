@@ -50,3 +50,5 @@ class HelaBodyDataset(Dataset):
 		proc_mask[(mask != 0) & (boundaries == 0), 1] = 1
 		proc_mask[boundaries == 1, 2] = 1
 		return proc_mask
+		
+		
