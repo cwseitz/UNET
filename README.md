@@ -12,13 +12,9 @@ conda env create -f /path/to/unet.yml
 conda activate unet
 ```  
 
-To make sure everything is working correctly, you can navigate to UNET/UNET/examples. There you will find an example named 'bbbc039.py' which segments a large dataset of pre-annotated U2OS nuclei procured by the BROAD institute. Run the training process on this example to ensure everything is working correctly:
+To make sure everything is working correctly, you can navigate to UNET/UNET/examples. There you will find an example named 'bbbc039.py' which trains a large dataset of pre-annotated U2OS nuclei procured by the BROAD institute. 
 
-``` 
-python bbbc039.py
-```  
-
-The example illustrates the major components of the framework. I'll walk through the code piece by piece. The first block builds a configuration object ```config``` from parameters in the file 'bbbc039.json'. 
+The example illustrates the major components of the framework, so I'll walk through the code piece by piece. The first block builds a configuration object ```config``` from parameters in the file 'bbbc039.json'. 
 
 ``` 
 config_path = 'bbbc039.json'
@@ -27,7 +23,7 @@ config = json.load(file)
 config = ConfigParser(config)
 ```  
 
-For every new project you need a configuration file like this one. Next we prepare the device we are going to the model on:
+Like everything else, your configuration is an object. For every new project you should make a configuration file like this one. Next we prepare the device we are going to the model on:
 
 ``` 
 n_gpu = 0
