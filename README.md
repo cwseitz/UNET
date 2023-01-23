@@ -79,7 +79,10 @@ Let's take a quick look at the configuration file 'bbbc039.json'
 
 ```
 
-As you can see, we set ```arch``` to ```UNetModel``` which is because we want to use the model architecture specified by ```UNET.torch_models.UNetModel```. The remaining json keys e.g., ```data_loader```, contain the other objects we need for training, and their associated parameterization. Like everything else, your configuration itself is an object. For every new application, you should make a configuration file like this one. In the code, we build the configuration using 
+As you can see, we set ```arch``` to ```UNetModel``` which is because we want to use the model architecture specified by ```UNET.torch_models.UNetModel```. The remaining json keys e.g., ```data_loader```, contain the other objects we need for training, and their associated parameterization. Note that we are using ```U2OSDataLoader``` because we want to use the BBBC039 dataset. 
+
+
+Like everything else, your configuration itself is an object. For every new application, you should make a configuration file like this one. In the code, we build the configuration using 
 
 ``` 
 config_path = 'bbbc039.json'
