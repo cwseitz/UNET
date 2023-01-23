@@ -23,7 +23,75 @@ config = json.load(file)
 config = ConfigParser(config)
 ```  
 
-Like everything else, your configuration is an object. For every new project you should make a configuration file like this one. Next we prepare the device we are going to the model on:
+```
+{
+		"name": "UNetModel",
+		"n_gpu": 0,
+
+		"arch": {
+				"type": "UNetModel",
+				"args": {
+		"n_channels": 1,
+		"n_classes": 3
+	}
+		},
+		"data_loader": {
+				"type": "U2OSDataLoader",
+				"args":{
+						"data_dir": "data/",
+						"batch_size": 5,
+						"shuffle": true,
+						"validation_split": 0.2,
+						"num_workers": 2,
+						"crop_dim": 256
+				}
+		},
+		"optimizer": {
+				"type": "Adam",
+				"args":{
+						"lr": 0.01,
+						"weight_decay": 0,
+						"amsgrad": true
+				}
+		},
+		"loss": "CrossEntropyLoss",
+		"metrics": ["BackgroundRecall",
+								"BoundaryRecall",
+								"InteriorRecall",
+								"BackgroundPrecision",
+								"BoundaryPrecision",
+								"InteriorPrecision"],
+		"lr_scheduler": {
+				"type": "StepLR",
+				"args": {
+						"step_size": 1,
+						"gamma": 1
+				}
+		},
+		"trainer": {
+				"epochs": 50,
+
+				"save_dir": "saved/",
+				"save_period": 1,
+				"verbosity": 2,
+
+				"monitor": "min val_loss",
+				"early_stop": 10,
+				"tensorboard": true
+		}
+}
+
+```
+
+Like everything else, your configuration is an object. For every new application, you should make a configuration file like this one. The we instantiate the ```Logger```, ```DataLoader```, and ```Model``` we are using. Each of these is specified in the configuration file.
+
+logger = config.get_logger('train')
+data_loader = config.init_obj('data_loader', data_loaders)
+valid_data_loader = data_loader.split_validation()
+model = config.init_obj('arch', module_arch)
+logger.info(model)
+
+Next we prepare the device we are going to the model on:
 
 ``` 
 n_gpu = 0
@@ -43,7 +111,7 @@ optimizer = config.init_obj('optimizer', torch.optim, trainable_params)
 lr_scheduler = config.init_obj('lr_scheduler', torch.optim.lr_scheduler, optimizer)
 ```
 
-If you want to learn more about what these are, Finally, instantiate the object ```UNETTrainer``` and run the training process
+AS you can see, these are also specified in the configuration file. They are required, but you can try different optimizers, learning rate schedulers etc  if desired. Finally, instantiate the object ```UNETTrainer``` and run the training process
 
 ``` 
 trainer = UNETTrainer(model, criterion, metrics, optimizer,
