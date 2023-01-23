@@ -16,12 +16,8 @@ To make sure everything is working correctly, you can navigate to UNET/UNET/exam
 
 The example illustrates the major components of the framework, so I'll walk through the code piece by piece. The first block builds a configuration object ```config``` from parameters in the file 'bbbc039.json'. 
 
-``` 
-config_path = 'bbbc039.json'
-file = open(config_path)
-config = json.load(file)
-config = ConfigParser(config)
-```  
+
+Let's take a quick look at the configuration file 'bbbc039.json'
 
 ```
 {
@@ -83,7 +79,16 @@ config = ConfigParser(config)
 
 ```
 
-Like everything else, your configuration is an object. For every new application, you should make a configuration file like this one. The we instantiate the ```Logger```, ```DataLoader```, and ```Model``` we are using. Each of these is specified in the configuration file.
+As you can see, we set ```arch``` to ```UNetModel``` which is because we want to use the model architecture specified by ```UNET.torch_models.UNetModel```. The remaining json keys e.g., ```data_loader```, contain the other objects we need for training, and their associated parameterization. Like everything else, your configuration itself is an object. For every new application, you should make a configuration file like this one. In the code, we build the configuration using 
+
+``` 
+config_path = 'bbbc039.json'
+file = open(config_path)
+config = json.load(file)
+config = ConfigParser(config)
+```  
+
+Then we build a logger, data loader, and the model itself:
 
 logger = config.get_logger('train')
 data_loader = config.init_obj('data_loader', data_loaders)
@@ -94,7 +99,6 @@ logger.info(model)
 Next we prepare the device we are going to the model on:
 
 ``` 
-n_gpu = 0
 device, device_ids = prepare_device(n_gpu)
 model = model.to(device)
 if len(device_ids) > 1:
