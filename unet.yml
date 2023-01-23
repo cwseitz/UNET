@@ -1,4 +1,4 @@
-name: seitz2023
+name: unet
 channels:
   - conda-forge
   - defaults

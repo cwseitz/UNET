@@ -13,6 +13,7 @@ UNET/datasets/__init__.py
 UNET/datasets/_bbbc039.py
 UNET/datasets/_download.py
 UNET/datasets/_hela_body.py
+UNET/examples/bbbc039.py
 UNET/logger/__init__.py
 UNET/logger/logger.py
 UNET/logger/visualization.py
