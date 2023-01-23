@@ -1,6 +1,6 @@
 # UNET
 
-The library implements the UNET architecture in PyTorch for semantic segmentation of microscopy images. Like most PyTorch projects, it is implemented as a object-oriented framework. As such, it is not plug and play, and you will need to write new objects to tailor it to your specific needs.
+The library implements the UNET architecture in PyTorch for semantic segmentation of microscopy images. Like most PyTorch projects, it is implemented as a object-oriented framework. As such, you will need to write new objects to tailor it to your specific needs. In PyTorch data is a ```Dataset``` object, the object that loads the data is a ```DataLoader```, the model itself (UNET) is a ```Model```, the trainer the trains the model is a ```Trainer```, etc.
 
 
 ## Basic installation
